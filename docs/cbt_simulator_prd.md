@@ -106,7 +106,17 @@ The application ingests quizzes via a JSON file.
     *   "Other" selections and Subjective questions default to 0 marks (Unattempted).
 *   **Summary Dashboard:** Total Score, Attempted, Correct, Incorrect, Unattempted. Show "Pending Grading" if subjective questions exist.
 *   **Question-wise Review List:**
-    *   Display: Question, Correct Answer, User Answer (Option text or textarea content).
-    *   **Manual Grading UI:** For subjective/"Other" responses, show a numeric input allowing the user to manually award themselves marks (e.g., 0.5, 1). Updating this must dynamically update the Summary Dashboard's Total Score.
+    *   Render the question and all available options. 
+    *   **State Highlighting Rules:**
+        *   *Correct:* User's selected option gets a solid green background and check icon.
+        *   *Incorrect:* User's selected option gets a solid red background and cross icon. The actual correct option gets a dashed green outline.
+        *   *Unattempted:* Display an "Unattempted" badge. The actual correct option gets a dashed green outline.
+        *   *Subjective / "Other":* Display the user's text area response inside a styled blockquote or text panel.
+    *   **Manual Grading UI (For Subjective/"Other"):** 
+        *   Provide a "Quick-Grade" button group to speed up evaluator workflows.
+        *   Button 1: **[ ❌ Incorrect ]** - 1-click assigns `0` (or `-0.25` if negative marking is active).
+        *   Button 2: **[ ✅ Correct ]** - 1-click assigns `1.0` mark.
+        *   Input: **[ Partial: ___ ]** - A numeric input box for manual partial marks (e.g., `0.5`).
+        *   *Validation:* Enforce maximum `1.0` and minimum `0` (or `-0.25` based on negative marking config). Updating this control dynamically updates the Summary Dashboard's Total Score.
 *   **Export:** "Download Result" button triggering CSS-optimized print-to-PDF.
 *   **Cleanup:** "Exit to Home" button clears `localStorage` and resets the app.

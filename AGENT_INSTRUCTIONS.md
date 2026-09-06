@@ -21,3 +21,4 @@ Always refer to `docs/vue3_cbt_coding_standards.md` for Vue 3 best practices tai
 * **No Placeholders:** Provide complete, working code blocks. Do not use comments like `// implement logic here` or `// ...rest of code`.
 * **Think Step-by-Step:** Briefly outline your approach before outputting large refactors or new components.
 * **Dependency Management:** Do not introduce new npm packages without explicit permission. Stick to the core stack (Vue, Vite, Tailwind, Shadcn-vue, Pinia, Vue Router, markdown-it, katex, dompurify).
+* **Verification:** Each time you make any changes to code, you must run `npm run type-check` and `npm run lint` and verify if everything is good before reporting back to the user.

@@ -1,0 +1,158 @@
+{
+  "duration": 30,
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the capital of India?",
+      "options": {
+        "A": "Mumbai",
+        "B": "New Delhi",
+        "C": "Kolkata",
+        "D": "Chennai"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 2,
+      "question": "ગુજરાતનું પાટનગર કયું છે?",
+      "options": {
+        "A": "અમદાવાદ",
+        "B": "ગાંધીનગર",
+        "C": "સુરત",
+        "D": "વડોદરા"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 3,
+      "question": "Solve for $x$: $2x + 6 = 14$",
+      "options": {
+        "A": "2",
+        "B": "3",
+        "C": "4",
+        "D": "5"
+      },
+      "answer": "C"
+    },
+    {
+      "id": 4,
+      "question": "Which planet is known as the **Red Planet**?",
+      "options": {
+        "A": "Venus",
+        "B": "Mars",
+        "C": "Jupiter",
+        "D": "Saturn"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 5,
+      "question": "The area of a circle is given by the formula $A = \\pi r^2$. What is the area when $r = 7$ cm? (Use $\\pi = \\frac{22}{7}$)",
+      "options": {
+        "A": "144 cm²",
+        "B": "154 cm²",
+        "C": "148 cm²",
+        "D": "156 cm²"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 6,
+      "question": "Who wrote the Indian national anthem *Jana Gana Mana*?",
+      "options": {
+        "A": "Bankim Chandra Chattopadhyay",
+        "B": "Rabindranath Tagore",
+        "C": "Sarojini Naidu",
+        "D": "Mahatma Gandhi"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 7,
+      "question": "નીચેનામાંથી કઈ નદી ગુજરાતમાંથી વહે છે?",
+      "options": {
+        "A": "ગંગા",
+        "B": "નર્મદા",
+        "C": "યમુના",
+        "D": "ગોદાવરી"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 8,
+      "question": "Which of the following is **NOT** a fundamental right in the Indian Constitution?",
+      "options": {
+        "A": "Right to Equality",
+        "B": "Right to Property",
+        "C": "Right to Freedom",
+        "D": "Right against Exploitation"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 9,
+      "question": "If $$\\frac{x}{3} + 5 = 9$$ then find the value of $x$.",
+      "options": {
+        "A": "10",
+        "B": "12",
+        "C": "14",
+        "D": "8"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 10,
+      "question": "Which vitamin is produced when human skin is exposed to sunlight?",
+      "options": {
+        "A": "Vitamin A",
+        "B": "Vitamin B",
+        "C": "Vitamin C",
+        "D": "Vitamin D"
+      },
+      "answer": "D"
+    },
+    {
+      "id": 11,
+      "question": "The Dandi March was led by:",
+      "options": {
+        "A": "Jawaharlal Nehru",
+        "B": "Mahatma Gandhi"
+      },
+      "answer": "B"
+    },
+    {
+      "id": 12,
+      "question": "દાંડી કૂચ વિશે ટૂંકનોંધ લખો.",
+      "options": {},
+      "answer": ""
+    },
+    {
+      "id": 13,
+      "question": "Explain the **water cycle** in your own words.",
+      "options": {},
+      "answer": ""
+    },
+    {
+      "id": 14,
+      "question": "Simplify: $$\\frac{3x^2 + 6x}{3x}$$",
+      "options": {
+        "A": "$x + 2$",
+        "B": "$x + 6$",
+        "C": "$3x + 2$",
+        "D": "$x^2 + 2$"
+      },
+      "answer": "A"
+    },
+    {
+      "id": 15,
+      "question": "Which of the following is the largest ocean on Earth?",
+      "options": {
+        "A": "Atlantic Ocean",
+        "B": "Indian Ocean",
+        "C": "Pacific Ocean",
+        "D": "Arctic Ocean"
+      },
+      "answer": "C"
+    }
+  ]
+}
