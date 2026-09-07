@@ -26,7 +26,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-background">
+  <div class="flex flex-col h-[100dvh] bg-background">
     <HeaderBar />
 
     <div class="flex flex-1 overflow-hidden">
