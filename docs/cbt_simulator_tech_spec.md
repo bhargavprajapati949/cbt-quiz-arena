@@ -27,7 +27,8 @@ src/
 │   └── ui/                  # Shadcn-vue generated components (Button, Sheet, RadioGroup, Dialog)
 ├── composables/
 │   ├── useTimer.ts          # Countdown logic & auto-submit hook
-│   └── useCbtEngine.ts      # Core state transitions and scoring logic
+│   ├── useCbtEngine.ts      # Core state transitions and scoring logic
+│   └── useRemoteQuiz.ts     # Async fetch + schema validation for ?test=<URL> param
 ├── router/
 │   └── index.ts             # Routes: '/' (Home), '/test' (TestView), '/result' (ResultView)
 ├── stores/
@@ -35,7 +36,7 @@ src/
 ├── types/
 │   └── index.ts             # Global TypeScript interfaces
 ├── views/
-│   ├── HomeView.vue         # File import, config, resume prompt
+│   ├── HomeView.vue         # File import, config, resume prompt, remote URL loading
 │   ├── TestView.vue         # CBT execution layout
 │   └── ResultView.vue       # Score dashboard & manual grading
 ├── App.vue
@@ -142,6 +143,23 @@ Executed on `/result` mount or upon manual score override.
 *   Display User Answer vs Correct Answer.
 *   Page breaks inside question blocks should be avoided (`page-break-inside: avoid;`).
 
+### 4.4 Remote JSON Loading (`src/composables/useRemoteQuiz.ts`)
+*   **Trigger:** Called from `HomeView.vue` on mount when `route.query.test` is present.
+*   **Signature:** `useRemoteQuiz()` returns `{ isLoading, fetchError, loadFromUrl }`.
+*   **`loadFromUrl(url: string): Promise<QuizConfig | null>`:**
+    1.  Validate the URL is a non-empty string starting with `http://` or `https://`. Reject and set `fetchError` if not.
+    2.  Call `fetch(url)`. On network failure, set `fetchError` with a user-friendly message.
+    3.  On non-OK HTTP status (e.g., 404, 403), set `fetchError` with the status code.
+    4.  Parse the response JSON. On parse failure, set `fetchError`.
+    5.  Validate that the parsed object has a `questions` array. On failure, set `fetchError`.
+    6.  On success, return the `QuizConfig`. Set `isLoading = false`.
+*   **`HomeView.vue` Integration:**
+    *   Import `useRoute` from `vue-router` and call `const route = useRoute()`.
+    *   In `onMounted`, check `route.query.test`. If it is a non-empty string, call `loadFromUrl()` from the `useRemoteQuiz` composable.
+    *   While loading, render a full-width loading banner (spinner + "Loading quiz from URL…") replacing the upload card.
+    *   On error, render a dismissible error alert card with the `fetchError` message and show the normal upload UI.
+    *   On success, populate `quizData` and `fileName` (derived from URL), then pre-fill `duration` from the loaded config.
+
 ## 6. Implementation Steps for AI
 1. Initialize Vite Vue 3 project with Tailwind and TS.
 2. Install dependencies: `pinia pinia-plugin-persistedstate vue-router markdown-it katex lucide-vue-next`.
@@ -151,3 +169,4 @@ Executed on `/result` mount or upon manual score override.
 6. Build Layout components (`HeaderBar`, `PaletteDrawer`, `ActionBar`).
 7. Build `QuestionDisplay` with markdown/katex integration.
 8. Wire state management, scoring, and print styles.
+9. Implement `useRemoteQuiz.ts` and integrate `?test=<URL>` loading in `HomeView.vue`.

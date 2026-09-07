@@ -61,6 +61,13 @@ The application ingests quizzes via a JSON file.
     *   *Checked:* Correct = +1, Incorrect = -0.25, Unattempted/Subjective = 0.
     *   *Unchecked:* Correct = +1, Incorrect = 0, Unattempted/Subjective = 0.
 *   **AI Prompt Generator:** Display a copyable prompt for users to generate compatible JSON files using LLMs.
+*   **Remote JSON Loading via Query Parameter:**
+    *   On initial load, the app must inspect the URL for a `?test=<URL>` query parameter.
+    *   If present, the app must automatically `fetch()` the remote JSON, bypassing manual drag-and-drop.
+    *   While fetching, display a loading spinner with the message "Loading quiz from URL…".
+    *   On success: validate the parsed JSON against the `QuizConfig` schema, pre-populate the quiz config into local state, and show the standard "Start Test" configuration prompt (duration + negative marking) so the user can confirm before starting.
+    *   On failure (network error, CORS, invalid URL, or schema validation failure): display a clear, user-readable error card explaining what went wrong, and fall back to the manual upload UI so the user is not left stranded.
+    *   The fetch URL must be a fully-qualified `https://` URL. Relative paths must be rejected with an error.
 
 ### 3.2 CBT Engine Interface (The Test)
 *   **Layout:** 

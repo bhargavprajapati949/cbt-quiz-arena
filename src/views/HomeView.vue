@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useTestSessionStore } from '@/stores/testSession'
 import { useCbtEngine } from '@/composables/useCbtEngine'
+import { useRemoteQuiz } from '@/composables/useRemoteQuiz'
 import type { QuizConfig } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,11 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Upload, Play, Trash2, AlertTriangle, Clock, Copy, Check } from 'lucide-vue-next'
+import { Upload, Play, Trash2, AlertTriangle, Clock, Copy, Check, Loader2, Link, X } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 const store = useTestSessionStore()
 const { initializeTest, discardTest } = useCbtEngine()
+const { isLoading: isRemoteLoading, fetchError: remoteFetchError, loadFromUrl } = useRemoteQuiz()
 
 const quizData = ref<QuizConfig | null>(null)
 const duration = ref<number>(60)
@@ -30,6 +33,7 @@ const fileError = ref<string>('')
 const isDragging = ref<boolean>(false)
 const showResumeDialog = ref<boolean>(false)
 const promptCopied = ref<boolean>(false)
+const remoteLoadUrl = ref<string>('')
 
 const hasActiveSession = computed(() => store.isActive && !store.isCompleted)
 
@@ -40,11 +44,47 @@ const resumeTimeFormatted = computed(() => {
   return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
 })
 
-onMounted(() => {
+onMounted(async () => {
+  // Production-ready flow:
+  // If the user has an active session, show the dialog IMMEDIATELY.
+  // Do not block the UI waiting for a remote fetch, and do not waste bandwidth 
+  // if they intend to resume the old test.
   if (hasActiveSession.value) {
     showResumeDialog.value = true
+    return
   }
+
+  // If no active session, proceed to check for remote URL
+  await checkAndLoadRemoteQuiz()
 })
+
+const checkAndLoadRemoteQuiz = async () => {
+  // Check for ?test= query parameter
+  // In hash mode, vue-router expects the query after the hash (e.g. /#/?test=...)
+  // But users often put it before the hash (e.g. /?test=...#/). We check both.
+  let testUrl = route.query.test as string | undefined
+  if (!testUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    testUrl = searchParams.get('test') || undefined
+  }
+
+  if (typeof testUrl === 'string' && testUrl.trim() !== '') {
+    remoteLoadUrl.value = testUrl
+    const config = await loadFromUrl(testUrl)
+    if (config) {
+      quizData.value = config
+      try {
+        const urlParts = new URL(testUrl).pathname.split('/')
+        fileName.value = urlParts[urlParts.length - 1] || 'Remote Quiz'
+      } catch {
+        fileName.value = 'Remote Quiz'
+      }
+      if (config.duration) {
+        duration.value = config.duration
+      }
+    }
+  }
+}
 
 const aiPrompt = `Generate a JSON quiz file in the following format. The JSON should have a "duration" field (test duration in minutes) and a "questions" array. Each question object should have:
 - "id": a unique number
@@ -85,6 +125,9 @@ const processFile = (file: File) => {
       if (parsed.duration) {
         duration.value = parsed.duration
       }
+      // Clear remote state if manual upload occurs
+      remoteLoadUrl.value = ''
+      remoteFetchError.value = ''
     } catch {
       fileError.value = 'Failed to parse JSON file. Please check the format.'
     }
@@ -119,9 +162,22 @@ const resumeTest = () => {
   router.push('/test')
 }
 
-const discardAndRestart = () => {
+const discardAndRestart = async () => {
   discardTest()
   showResumeDialog.value = false
+  // Now that the old test is cleared, fetch the remote one if pending in URL
+  await checkAndLoadRemoteQuiz()
+}
+
+const clearRemoteQuiz = () => {
+  remoteLoadUrl.value = ''
+  quizData.value = null
+  fileName.value = ''
+}
+
+const dismissRemoteError = () => {
+  remoteFetchError.value = ''
+  remoteLoadUrl.value = ''
 }
 
 const copyPrompt = async () => {
@@ -144,8 +200,53 @@ const copyPrompt = async () => {
         </p>
       </div>
 
-      <!-- File Upload Card -->
-      <Card class="mb-6">
+      <!-- Remote Loading State -->
+      <Card
+        v-if="isRemoteLoading"
+        class="mb-6"
+      >
+        <CardContent class="pt-6 pb-6">
+          <div class="flex flex-col items-center justify-center gap-3 py-4 text-center">
+            <Loader2 class="h-8 w-8 text-primary animate-spin" />
+            <p class="text-sm font-medium text-foreground">
+              Loading quiz from URL…
+            </p>
+            <p class="text-xs text-muted-foreground max-w-sm break-all">
+              {{ remoteLoadUrl }}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Remote Fetch Error -->
+      <div
+        v-if="remoteFetchError && !isRemoteLoading"
+        class="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive"
+      >
+        <div class="flex items-start gap-3">
+          <AlertTriangle class="h-5 w-5 shrink-0 mt-0.5" />
+          <div class="flex-1">
+            <h5 class="text-sm font-semibold mb-1 leading-none tracking-tight">
+              Failed to Load Remote Quiz
+            </h5>
+            <p class="text-sm text-destructive/90">
+              {{ remoteFetchError }}
+            </p>
+          </div>
+          <button
+            class="text-destructive/70 hover:text-destructive transition-colors"
+            @click="dismissRemoteError"
+          >
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload Card (shown unless actively loading from remote) -->
+      <Card
+        v-if="!isRemoteLoading"
+        class="mb-6"
+      >
         <CardHeader>
           <CardTitle class="flex items-center gap-2">
             <Upload class="h-5 w-5" />
@@ -156,6 +257,28 @@ const copyPrompt = async () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <!-- Remote source badge -->
+          <div
+            v-if="remoteLoadUrl && quizData && !remoteFetchError"
+            class="mb-4 flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-sm text-muted-foreground"
+          >
+            <Link class="h-4 w-4 shrink-0 text-primary" />
+            <span
+              class="flex-1 break-all line-clamp-1"
+              :title="remoteLoadUrl"
+            >
+              Loaded from: <strong class="text-foreground">{{ remoteLoadUrl }}</strong>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-6 w-6 rounded-full hover:bg-muted"
+              @click="clearRemoteQuiz"
+            >
+              <X class="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
           <div
             class="relative border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer"
             :class="isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'"
