@@ -1,7 +1,8 @@
 {
-  "name": "vite-project",
+  "name": "cbt-quiz-arena",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A browser-based CBT simulator supporting MCQ, subjective, math (KaTeX), and Gujarati language questions.",
   "type": "module",
   "scripts": {
     "dev": "vite",

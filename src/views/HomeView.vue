@@ -137,7 +137,7 @@ const copyPrompt = async () => {
       <!-- Title -->
       <div class="text-center mb-8">
         <h1 class="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
-          CBT Simulator
+          CBT Quiz Arena
         </h1>
         <p class="mt-2 text-muted-foreground">
           Upload a JSON quiz file to begin your Computer Based Test simulation.

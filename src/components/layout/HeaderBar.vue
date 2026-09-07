@@ -30,7 +30,7 @@ const isLowTime = computed(() => store.timeRemainingSec <= 300)
       <!-- Center: Title -->
       <div class="flex items-center gap-2">
         <FileText class="h-4 w-4 text-muted-foreground" />
-        <span class="text-sm font-semibold sm:text-base">CBT Simulator</span>
+        <span class="text-sm font-semibold sm:text-base">CBT Quiz Arena</span>
       </div>
 
       <!-- Right: Timer -->
