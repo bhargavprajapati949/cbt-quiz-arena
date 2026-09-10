@@ -12,7 +12,7 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Home, Printer, CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
+import { Home, Printer, CheckCircle, XCircle, MinusCircle, Filter } from 'lucide-vue-next'
 
 const store = useTestSessionStore()
 const router = useRouter()
@@ -165,6 +165,46 @@ const quickGrade = (qId: string | number, score: number) => {
   updateManualScore(qId, String(score))
 }
 
+// --- Multi-select outcome filter ---
+const activeFilters = ref<string[]>([])
+
+const toggleFilter = (category: string) => {
+  const idx = activeFilters.value.indexOf(category)
+  if (idx === -1) {
+    activeFilters.value.push(category)
+  } else {
+    activeFilters.value.splice(idx, 1)
+  }
+}
+
+const isFilterActive = (category: string): boolean => {
+  return activeFilters.value.includes(category)
+}
+
+const getOutcomeCategory = (review: QuestionReview): string => {
+  if (review.isSubjective || review.isOther) return 'subjective'
+  if (review.isUnattempted) return 'unattempted'
+  if (review.isCorrect) return 'correct'
+  return 'incorrect'
+}
+
+const filteredQuestions = computed(() => {
+  if (activeFilters.value.length === 0) return questionReviews.value
+  return questionReviews.value.filter((r) => activeFilters.value.includes(getOutcomeCategory(r)))
+})
+
+const printHeaderLabel = computed(() => {
+  if (activeFilters.value.length === 0) return 'All Questions'
+  const labels: Record<string, string> = {
+    correct: 'Correct',
+    incorrect: 'Incorrect',
+    unattempted: 'Unattempted',
+    subjective: 'Subjective',
+  }
+  const names = activeFilters.value.map((f) => labels[f] || f)
+  return `Reviewing: ${names.join(', ')} Questions`
+})
+
 const handlePrint = () => {
   window.print()
 }
@@ -277,9 +317,59 @@ const handleExit = () => {
         Question-wise Review
       </h2>
 
+      <!-- Multi-Select Outcome Filter Bar -->
+      <div class="flex flex-wrap items-center gap-2 mb-5 print:hidden">
+        <Filter class="h-4 w-4 text-muted-foreground shrink-0" />
+        <button
+          class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="isFilterActive('correct')
+            ? 'bg-green-100 border-green-400 text-green-800 dark:bg-green-950/40 dark:border-green-600 dark:text-green-300'
+            : 'bg-background border-border text-muted-foreground hover:bg-accent'"
+          @click="toggleFilter('correct')"
+        >
+          <CheckCircle class="h-3.5 w-3.5" />
+          Correct ({{ scoringResult.correct }})
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="isFilterActive('incorrect')
+            ? 'bg-red-100 border-red-400 text-red-800 dark:bg-red-950/40 dark:border-red-600 dark:text-red-300'
+            : 'bg-background border-border text-muted-foreground hover:bg-accent'"
+          @click="toggleFilter('incorrect')"
+        >
+          <XCircle class="h-3.5 w-3.5" />
+          Incorrect ({{ scoringResult.incorrect }})
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="isFilterActive('unattempted')
+            ? 'bg-gray-200 border-gray-400 text-gray-800 dark:bg-gray-800 dark:border-gray-500 dark:text-gray-300'
+            : 'bg-background border-border text-muted-foreground hover:bg-accent'"
+          @click="toggleFilter('unattempted')"
+        >
+          <MinusCircle class="h-3.5 w-3.5" />
+          Unattempted ({{ scoringResult.unattempted }})
+        </button>
+        <button
+          v-if="scoringResult.subjective > 0"
+          class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+          :class="isFilterActive('subjective')
+            ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-950/40 dark:border-amber-600 dark:text-amber-300'
+            : 'bg-background border-border text-muted-foreground hover:bg-accent'"
+          @click="toggleFilter('subjective')"
+        >
+          Subjective ({{ scoringResult.subjective }})
+        </button>
+      </div>
+
+      <!-- Print-only filter header -->
+      <div class="hidden print:block text-lg font-bold mb-4">
+        {{ printHeaderLabel }}
+      </div>
+
       <div class="space-y-4">
         <Card
-          v-for="review in questionReviews"
+          v-for="review in filteredQuestions"
           :key="review.questionId"
           class="print-break-avoid"
         >

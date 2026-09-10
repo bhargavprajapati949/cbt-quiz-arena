@@ -120,6 +120,12 @@ The application ingests quizzes via a JSON file.
     *   Evaluate MCQs based on config.
     *   "Other" selections and Subjective questions default to 0 marks (Unattempted).
 *   **Summary Dashboard:** Total Score, Attempted, Correct, Incorrect, Unattempted. Show "Pending Grading" if subjective questions exist.
+*   **Multi-Select Outcome Filter:**
+    *   A filter bar must appear above the Question-wise Review list.
+    *   Filter categories: **Correct**, **Incorrect**, **Unattempted**, **Subjective**.
+    *   Each filter chip must display the count of questions in that category (e.g., "Incorrect (5)").
+    *   Users can select multiple filters simultaneously (e.g., both "Incorrect" and "Unattempted"). If no filters are selected, all questions are displayed by default.
+    *   **Print Behavior:** The interactive filter chips must be hidden in the print stylesheet (`print:hidden`). A dynamic text header must be printed instead, indicating the active filters (e.g., "Reviewing: Incorrect, Unattempted Questions"). If no filters are active, the header reads "All Questions".
 *   **Question-wise Review List:**
     *   Render the question and all available options. 
     *   **State Highlighting Rules:**

@@ -129,8 +129,15 @@ Executed on `/result` mount or upon manual score override.
 *   **Incorrect (Objective):** `-0.25` (if `config.enableNegativeMarking` is true), else `0`.
 *   **Unattempted / Subjective (Pending) / "Other" Option:** `0` (default, subject to manual update).
 *   **Formula:** `Total = (Correct * 1) + (Incorrect * NegativePenalty) + Sum(ManualScores)`
+### 4.3 Result Page Outcome Filter (`ResultView.vue`)
+*   **`activeFilters: ref<string[]>([])`**: Tracks active filter categories. Valid values: `'correct'`, `'incorrect'`, `'unattempted'`, `'subjective'`.
+*   **`filteredQuestions: computed`**: Returns all `questionReviews` if `activeFilters` is empty. Otherwise, returns only reviews matching any active filter category.
+*   **`printHeaderLabel: computed`**: Derives a readable string from `activeFilters` (e.g., `"Reviewing: Incorrect, Unattempted Questions"`). Returns `"All Questions"` if the array is empty.
+*   **Category Counts**: Derived from `scoringResult` computed (already computes `correct`, `incorrect`, `unattempted`, `subjective` counts).
+*   **UI**: Use Shadcn-Vue styled toggle chips (`Button` with `variant` toggling) configured for multi-select. Each chip displays `"Label (count)"`.
+*   **Print**: Filter bar is `print:hidden`. A `hidden print:block` div displays `printHeaderLabel`.
 
-### 4.3 Timer & Resiliency (`src/composables/useTimer.ts`)
+### 4.4 Timer & Resiliency (`src/composables/useTimer.ts`)
 *   Run `setInterval(tick, 1000)` updating `timeRemainingSec` in Pinia.
 *   Pinia `pinia-plugin-persistedstate` automatically syncs state to `localStorage`.
 *   **Auto-Submit:** If `timeRemainingSec <= 0`, clear interval, set `isCompleted = true`, and router.push('/result').
