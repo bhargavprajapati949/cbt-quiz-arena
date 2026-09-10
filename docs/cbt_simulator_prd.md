@@ -79,10 +79,18 @@ The application ingests quizzes via a JSON file.
     *   **Always append a final option:** "Other".
     *   If "Other" is selected, or if `options` is empty (Subjective), reveal a `<textarea>` for notes/answers.
 *   **Bottom Action Bar:**
-    1.  **Save & Next:** Saves selection -> advances index.
-    2.  **Save & Mark for Review:** Saves selection -> flags as review -> advances index. (Evaluated for scoring).
-    3.  **Mark for Review & Next:** Does NOT save selection -> flags as review -> advances index.
+    1.  **Save & Next:** Saves selection -> advances index. **On the final question**, the label changes to **"Save & Preview Submit"** — the action saves the answer but opens the Submit Confirmation Dialog instead of advancing.
+    2.  **Save & Mark for Review:** Saves selection -> flags as review -> advances index (or opens Submit Dialog on last question). (Evaluated for scoring).
+    3.  **Mark for Review & Next:** Does NOT save selection -> flags as review -> advances index. **On the final question**, the label changes to **"Mark for Review"** and opens the Submit Dialog.
     4.  **Clear Response:** Clears radio selection and textarea.
+*   **Submit Confirmation Dialog:** Intercepts any submit action (from Action Bar, Header, or Palette). Must display:
+    *   **Session Stats Grid:** Answered (green), Unattempted (red), Marked for Review (purple), Not Visited (grey).
+    *   **Actions:** "Return to Test" (closes dialog, no side effect) | "Final Submit" (calls `submitTest()` and routes to `/result`).
+    *   Must not submit automatically — requires the user to click "Final Submit" explicitly.
+*   **Global Submit Access:**
+    *   A **"Submit Test"** button must exist at the bottom of the Question Palette sidebar (desktop) and the mobile Sheet — both open the Submit Confirmation Dialog.
+    *   An **"End Test"** outline button must exist in the `HeaderBar` (visible only during an active test). This is especially important for mobile users who cannot easily find the palette. Clicking it opens the Submit Confirmation Dialog.
+*   **Dark Mode:** A global **Dark Mode toggle** (Sun/Moon icon button) must exist in the `HeaderBar`. Toggling it applies the `dark` class to `<html>` and persists the user preference to `localStorage` under the key `theme`. On app load, the preference is restored (fallback: system `prefers-color-scheme`).
 
 ### 3.3 Question Palette (Navigation Grid)
 *   **Behavior:** Unrestricted navigation. Clicking a number jumps to that question.

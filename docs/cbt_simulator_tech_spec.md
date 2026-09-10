@@ -19,15 +19,16 @@ src/
 │   └── main.css             # Tailwind imports & @media print rules
 ├── components/
 │   ├── layout/
-│   │   ├── HeaderBar.vue    # Top bar (Profile, Timer, Title)
-│   │   └── ActionBar.vue    # Bottom sticky actions
+│   │   ├── HeaderBar.vue    # Top bar (Profile, Timer, Title, Dark Mode toggle, End Test button)
+│   │   └── ActionBar.vue    # Bottom sticky actions (label-mutating on last question)
 │   ├── test/
-│   │   ├── QuestionDisplay.vue # Markdown + KaTeX + MCQ/Textarea
-│   │   └── PaletteDrawer.vue   # Grid navigation (Desktop Sidebar / Mobile Sheet)
+│   │   ├── QuestionDisplay.vue    # Markdown + KaTeX + MCQ/Textarea
+│   │   ├── PaletteDrawer.vue      # Grid navigation (Desktop Sidebar / Mobile Sheet)
+│   │   └── SubmitConfirmationDialog.vue  # Shadcn Dialog with session stats
 │   └── ui/                  # Shadcn-vue generated components (Button, Sheet, RadioGroup, Dialog)
 ├── composables/
 │   ├── useTimer.ts          # Countdown logic & auto-submit hook
-│   ├── useCbtEngine.ts      # Core state transitions and scoring logic
+│   ├── useCbtEngine.ts      # Core state transitions, scoring, isLastQuestion getter
 │   └── useRemoteQuiz.ts     # Async fetch + schema validation for ?test=<URL> param
 ├── router/
 │   └── index.ts             # Routes: '/' (Home), '/test' (TestView), '/result' (ResultView)
@@ -89,6 +90,16 @@ export interface SessionState {
   attempts: Record<string | number, AttemptRecord>;
   currentIndex: number;
   timeRemainingSec: number;
+  isDarkMode: boolean;           // Persisted to localStorage as 'theme'
+  isSubmitDialogOpen: boolean;   // UI-only, not persisted
+}
+
+// 5. Session Stats (computed by Pinia store)
+export interface SessionStats {
+  answered: number;
+  unattempted: number;
+  markedForReview: number;
+  notVisited: number;
 }
 ```
 

@@ -8,6 +8,7 @@ import MarkdownIt from 'markdown-it'
 import katex from 'katex'
 import DOMPurify from 'dompurify'
 import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -175,33 +176,28 @@ const handleExit = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Action Buttons -->
-    <div class="no-print sticky top-0 z-50 bg-white border-b shadow-sm">
-      <div class="container max-w-5xl mx-auto flex items-center justify-between p-3">
-        <h1 class="text-lg font-bold">
-          Test Results
-        </h1>
-        <div class="flex gap-2">
-          <Button
-            variant="outline"
-            class="gap-1.5"
-            @click="handlePrint"
-          >
-            <Printer class="h-4 w-4" />
-            <span class="hidden sm:inline">Download PDF</span>
-          </Button>
-          <Button
-            variant="outline"
-            class="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
-            @click="handleExit"
-          >
-            <Home class="h-4 w-4" />
-            <span class="hidden sm:inline">Exit to Home</span>
-          </Button>
-        </div>
-      </div>
-    </div>
+  <div class="min-h-screen bg-background">
+    <!-- Sticky header with dark mode toggle and result actions -->
+    <PageHeader title="Test Results">
+      <template #actions>
+        <Button
+          variant="outline"
+          class="gap-1.5"
+          @click="handlePrint"
+        >
+          <Printer class="h-4 w-4" />
+          <span class="hidden sm:inline">Download PDF</span>
+        </Button>
+        <Button
+          variant="outline"
+          class="gap-1.5 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+          @click="handleExit"
+        >
+          <Home class="h-4 w-4" />
+          <span class="hidden sm:inline">Exit to Home</span>
+        </Button>
+      </template>
+    </PageHeader>
 
     <div class="container max-w-5xl mx-auto py-6 px-4">
       <!-- Score Summary Cards -->

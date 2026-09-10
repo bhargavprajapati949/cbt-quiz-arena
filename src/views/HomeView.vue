@@ -6,6 +6,7 @@ import { useCbtEngine } from '@/composables/useCbtEngine'
 import { useRemoteQuiz } from '@/composables/useRemoteQuiz'
 import type { QuizConfig } from '@/types'
 import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -188,7 +189,8 @@ const copyPrompt = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+  <div class="min-h-screen bg-background">
+    <PageHeader />
     <div class="container max-w-3xl mx-auto py-8 px-4">
       <!-- Title -->
       <div class="text-center mb-8">

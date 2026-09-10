@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { useTestSessionStore } from '@/stores/testSession'
 import { useCbtEngine } from '@/composables/useCbtEngine'
 import { QuestionStatus } from '@/types'
-import { useTimer } from '@/composables/useTimer'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -12,15 +11,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import SubmitConfirmationDialog from '@/components/test/SubmitConfirmationDialog.vue'
 import { LayoutGrid, Send } from 'lucide-vue-next'
 
 const store = useTestSessionStore()
 const { goToQuestion } = useCbtEngine()
-const { submitTest } = useTimer()
 const isSheetOpen = ref(false)
 
 const statusColorMap: Record<string, string> = {
-  [QuestionStatus.NOT_VISITED]: 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50',
+  [QuestionStatus.NOT_VISITED]: 'bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-500 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-600',
   [QuestionStatus.NOT_ANSWERED]: 'bg-red-500 border-red-600 text-white hover:bg-red-600',
   [QuestionStatus.ANSWERED]: 'bg-green-500 border-green-600 text-white hover:bg-green-600',
   [QuestionStatus.MARKED_FOR_REVIEW]: 'bg-purple-500 border-purple-600 text-white hover:bg-purple-600',
@@ -54,17 +53,19 @@ const handleQuestionClick = (index: number) => {
   isSheetOpen.value = false
 }
 
-const handleSubmit = () => {
-  if (confirm('Are you sure you want to submit the test?')) {
-    submitTest()
-  }
+const openSubmitDialog = () => {
+  store.isSubmitDialogOpen = true
+  isSheetOpen.value = false
 }
 </script>
 
 <template>
+  <!-- Global Submit Dialog (rendered once, outside both desktop/mobile layouts) -->
+  <SubmitConfirmationDialog />
+
   <!-- Desktop Sidebar -->
-  <aside class="no-print hidden lg:flex lg:flex-col lg:w-72 border-l bg-white overflow-y-auto">
-    <div class="p-4 border-b">
+  <aside class="no-print hidden lg:flex lg:flex-col lg:w-72 border-l bg-background overflow-hidden">
+    <div class="p-4 border-b shrink-0">
       <h3 class="text-sm font-semibold text-muted-foreground mb-3">
         Question Palette
       </h3>
@@ -72,7 +73,7 @@ const handleSubmit = () => {
       <!-- Status Legend -->
       <div class="grid grid-cols-2 gap-1.5 text-xs">
         <div class="flex items-center gap-1.5">
-          <span class="inline-block w-3 h-3 rounded-sm bg-white border border-gray-300" />
+          <span class="inline-block w-3 h-3 rounded-sm bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-500" />
           Not Visited ({{ statusCounts.notVisited }})
         </div>
         <div class="flex items-center gap-1.5">
@@ -96,8 +97,8 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Question Grid -->
-    <div class="flex-1 p-4">
+    <!-- Question Grid (scrollable) -->
+    <div class="flex-1 overflow-y-auto p-4">
       <div class="grid grid-cols-5 gap-2">
         <button
           v-for="(q, index) in store.questions"
@@ -118,11 +119,11 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <!-- Submit Button -->
-    <div class="p-4 border-t">
+    <!-- Submit Button (sticky at bottom of sidebar) -->
+    <div class="p-4 border-t shrink-0">
       <Button
         class="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2"
-        @click="handleSubmit"
+        @click="openSubmitDialog"
       >
         <Send class="h-4 w-4" />
         Submit Test
@@ -142,16 +143,16 @@ const handleSubmit = () => {
       </SheetTrigger>
       <SheetContent
         side="bottom"
-        class="h-[70vh] overflow-y-auto"
+        class="h-[75vh] flex flex-col"
       >
         <SheetHeader>
           <SheetTitle>Question Palette</SheetTitle>
         </SheetHeader>
-        <div class="mt-4">
+        <div class="flex-1 overflow-y-auto mt-4">
           <!-- Status Legend Mobile -->
           <div class="grid grid-cols-2 gap-1.5 text-xs mb-4">
             <div class="flex items-center gap-1.5">
-              <span class="inline-block w-3 h-3 rounded-sm bg-white border border-gray-300" />
+              <span class="inline-block w-3 h-3 rounded-sm bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-500" />
               Not Visited ({{ statusCounts.notVisited }})
             </div>
             <div class="flex items-center gap-1.5">
@@ -193,11 +194,13 @@ const handleSubmit = () => {
               />
             </button>
           </div>
+        </div>
 
-          <!-- Submit -->
+        <!-- Submit (sticky at bottom of sheet) -->
+        <div class="pt-3 border-t shrink-0">
           <Button
             class="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2"
-            @click="handleSubmit"
+            @click="openSubmitDialog"
           >
             <Send class="h-4 w-4" />
             Submit Test

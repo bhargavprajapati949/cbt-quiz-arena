@@ -1,8 +1,11 @@
+import { computed } from 'vue';
 import { useTestSessionStore } from '../stores/testSession';
 import { QuestionStatus, type QuizConfig, type AttemptRecord } from '../types';
 
 export function useCbtEngine() {
   const store = useTestSessionStore();
+
+  const isLastQuestion = computed(() => store.currentIndex === store.questions.length - 1);
 
   const getCurrentAttempt = (): AttemptRecord => {
     const q = store.questions[store.currentIndex];
@@ -34,20 +37,29 @@ export function useCbtEngine() {
 
   const hasResponded = () => {
     const attempt = getCurrentAttempt();
-    return (attempt.selectedOption !== null && attempt.selectedOption !== '') || 
+    return (attempt.selectedOption !== null && attempt.selectedOption !== '') ||
            (attempt.textResponse !== null && attempt.textResponse.trim() !== '');
   };
 
   const saveAndNext = () => {
     const attempt = getCurrentAttempt();
     attempt.status = hasResponded() ? QuestionStatus.ANSWERED : QuestionStatus.NOT_ANSWERED;
-    advanceIndex();
+    if (isLastQuestion.value) {
+      // On the last question, open the submit dialog instead of advancing
+      store.isSubmitDialogOpen = true;
+    } else {
+      advanceIndex();
+    }
   };
 
   const saveAndMarkForReview = () => {
     const attempt = getCurrentAttempt();
     attempt.status = hasResponded() ? QuestionStatus.ANSWERED_AND_MARKED : QuestionStatus.MARKED_FOR_REVIEW;
-    advanceIndex();
+    if (isLastQuestion.value) {
+      store.isSubmitDialogOpen = true;
+    } else {
+      advanceIndex();
+    }
   };
 
   const markForReviewAndNext = () => {
@@ -55,7 +67,11 @@ export function useCbtEngine() {
     attempt.selectedOption = null;
     attempt.textResponse = null;
     attempt.status = QuestionStatus.MARKED_FOR_REVIEW;
-    advanceIndex();
+    if (isLastQuestion.value) {
+      store.isSubmitDialogOpen = true;
+    } else {
+      advanceIndex();
+    }
   };
 
   const clearResponse = () => {
@@ -85,7 +101,7 @@ export function useCbtEngine() {
       enableNegativeMarking
     };
     store.questions = config.questions;
-    
+
     const newAttempts: Record<string | number, AttemptRecord> = {};
     config.questions.forEach((q, index) => {
       newAttempts[q.id] = {
@@ -106,12 +122,13 @@ export function useCbtEngine() {
   };
 
   return {
+    isLastQuestion,
     saveAndNext,
     saveAndMarkForReview,
     markForReviewAndNext,
     clearResponse,
     goToQuestion,
     initializeTest,
-    discardTest
+    discardTest,
   };
 }
